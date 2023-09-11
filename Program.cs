@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using DEMSoft.Common;
 using DEMSoft.Drawing;
-using DEMSoft.NURBS;
-using DEMSoft.Plot;
-using DEMSoft.IGA;
-using System.Drawing;
 using DEMSoft.EngineeringData;
-using DEMSoft.Common;
 using DEMSoft.Function;
-using System.Drawing.Printing;
-using System.CodeDom.Compiler;
-using System.Diagnostics;
+using DEMSoft.IGA;
+using DEMSoft.NURBS;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 
 namespace SampleTesting
 {
@@ -55,10 +48,10 @@ namespace SampleTesting
             curve.colorCurve = Color.Blue;
             curve.isDrawOriginal = false;
             curve.colorControlPoint = Color.Green;
-            curve.Draw(viewer);
+            //curve.Draw(viewer);
 
-            viewer.UpdateCamera();
-            viewer.Run();
+            //viewer.UpdateCamera();
+            //viewer.Run();
 
 
             ////// --------------------Khai bao vat lieu--------------------
@@ -71,23 +64,26 @@ namespace SampleTesting
 
             ModelStructureStatic model = new ModelStructureStatic(Dimension.Beam);
             // dinh nghia trang thai bai toan
-            
+
             model.AddMaterial(steel);
             model.AddPatch(curve);
+            model.AttachMaterialToPatch(0, 0);
 
             // them dai luong can tinh 
             model.AddComputeResult(Result.SIGMAXX, Result.SIGMAYY, Result.SIGMAEQV);
 
             ////apply constraint
-            //ConstraintValueEdge1D cX1 = new ConstraintValueEdge1D(
-            //    (PatchStructure1D)model.GetPatch(0), 1, 0, new NullFunctionRToR(), 0);
-            //ConstraintValueEdge1D cX2 = new ConstraintValueEdge1D(
-            //    (PatchStructure1D)model.GetPatch(1), 1, 0, new NullFunctionRToR(), 0);
-
+            ConstraintValueEdge1D cX1 = new ConstraintValueEdge1D(
+                (AbstractPatch1D)model.GetPatch(0), 0, 0, new NullFunctionRToR(), 0);
+            ConstraintValueEdge1D cY1 = new ConstraintValueEdge1D(
+              (AbstractPatch1D)model.GetPatch(0), 0, 1, new NullFunctionRToR(), 0);
+            ConstraintValueEdge1D cThetaZ1 = new ConstraintValueEdge1D(
+              (AbstractPatch1D)model.GetPatch(0), 0, 2, new NullFunctionRToR(), 0);
+            model.AddConstraint(cX1, cY1, cThetaZ1);
             ////// displacement edges
-            double du = 0.1;
-            ConstraintValueEdge1D cY0 = new ConstraintValueEdge1D(
-                (PatchStructure1D)model.GetPatch(0), 1, 1, new ConstantFunctionRToR(1.0), du);
+            //double du = 0.1;
+            //ConstraintValueEdge1D cY0 = new ConstraintValueEdge1D(
+            //    (PatchStructure1D)model.GetPatch(0), 1, 1, new ConstantFunctionRToR(1.0), du);
             //ConstraintValueEdge2D cY1 = new ConstraintValueEdge2D(
             //    (PatchStructure2D)model.GetPatch(1), 1, 1, new ConstantFunctionRToR(1.0), du);
             //ConstraintValueEdge2D cY2 = new ConstraintValueEdge2D(
@@ -106,12 +102,11 @@ namespace SampleTesting
             //    cY0, cY1, cY2, cY3, cX0, cX1, cX2, cX3);
             //Stopwatch sw = new Stopwatch();
             //sw.Start();
-            //model.IsSaveStepByStep = false;
-            ////model.NumberOfStepStorageNonlinear = 10;
-            //AbstractModel.IsParallelProcesing = true;
+            model.IsSaveStepByStep = false;
+            AbstractModel.IsParallelProcesing = false;
 
-            //model.InitializePatch();
-            //model.PreProcessing();
+            model.InitializePatch();
+            model.PreProcessing();
             //model.Solve();
             //model.PostProcessing();
 
