@@ -73,37 +73,21 @@ namespace SampleTesting
             // dinh nghia trang thai bai toan
             
             model.AddMaterial(steel);
-            //model.AddComputeResult(Result.SIGMAXX, Result.SIGMAYY, Result.SIGMAEQV);
-
             model.AddPatch(curve);
 
-            ////// them dai luong can tinh 
-            ////model.AddComputeResult(Result.SIGMAXX, Result.SIGMAYY, Result.SIGMAEQV);
+            // them dai luong can tinh 
+            model.AddComputeResult(Result.SIGMAXX, Result.SIGMAYY, Result.SIGMAEQV);
 
             ////apply constraint
-            //// clamped edge, patch 6-9
-            ConstraintValueEdge2D cX5 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(6), 1, 0, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cY5 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(6), 1, 1, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cX6 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(7), 1, 0, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cY6 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(7), 1, 1, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cX7 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(8), 1, 0, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cY7 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(8), 1, 1, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cX8 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(9), 1, 0, new NullFunctionRToR(), 0);
-            ConstraintValueEdge2D cY8 = new ConstraintValueEdge2D(
-                (PatchStructure2D)model.GetPatch(9), 1, 1, new NullFunctionRToR(), 0);
+            //ConstraintValueEdge1D cX1 = new ConstraintValueEdge1D(
+            //    (PatchStructure1D)model.GetPatch(0), 1, 0, new NullFunctionRToR(), 0);
+            //ConstraintValueEdge1D cX2 = new ConstraintValueEdge1D(
+            //    (PatchStructure1D)model.GetPatch(1), 1, 0, new NullFunctionRToR(), 0);
 
-
-            ////// displacement edges, patch 6-9
-            //double du = 0.1;
-            //ConstraintValueEdge2D cY0 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(0), 1, 1, new ConstantFunctionRToR(1.0), du);
+            ////// displacement edges
+            double du = 0.1;
+            ConstraintValueEdge1D cY0 = new ConstraintValueEdge1D(
+                (PatchStructure1D)model.GetPatch(0), 1, 1, new ConstantFunctionRToR(1.0), du);
             //ConstraintValueEdge2D cY1 = new ConstraintValueEdge2D(
             //    (PatchStructure2D)model.GetPatch(1), 1, 1, new ConstantFunctionRToR(1.0), du);
             //ConstraintValueEdge2D cY2 = new ConstraintValueEdge2D(
