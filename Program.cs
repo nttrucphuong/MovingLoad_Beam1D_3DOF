@@ -6,6 +6,7 @@ using DEMSoft.IGA;
 using DEMSoft.NURBS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace SampleTesting
@@ -39,8 +40,8 @@ namespace SampleTesting
             cps0[1, 0] = new ControlPoint(0, 8);
 
 
-            curve.SetDegreeOnAllDirections(3);
-            curve.hRefinement(1, 0); //inssert KVector - increase p, min luoi
+            curve.SetDegreeOnAllDirections(2);
+            //curve.hRefinement(1, 0); //inssert KVector - increase p, min luoi
             //curve.isColorfulFace = false;
             //curve.colorControlNet = Color.Blue;
             //curve.colorSurface = Color.Green;
@@ -72,42 +73,26 @@ namespace SampleTesting
             // them dai luong can tinh 
             model.AddComputeResult(Result.SIGMAXX, Result.SIGMAYY, Result.SIGMAEQV);
 
+            ControlPoint[] selAllCPs = ((AbstractPatch1D)model.GetPatch(0)).SelectAllControlPoints(0);
+            ControlPoint[] selCP = new ControlPoint[] { selAllCPs[0], selAllCPs[1] };
+            ConstraintValueArrayOfControlPoints cY = new ConstraintValueArrayOfControlPoints(selCP, 0, new NullFunctionRToR(), 0);
             ////apply constraint
-            ConstraintValueEdge1D cX1 = new ConstraintValueEdge1D(
-                (AbstractPatch1D)model.GetPatch(0), 0, 0, new NullFunctionRToR(), 0);
-            ConstraintValueEdge1D cY1 = new ConstraintValueEdge1D(
-              (AbstractPatch1D)model.GetPatch(0), 0, 1, new NullFunctionRToR(), 0);
-            ConstraintValueEdge1D cThetaZ1 = new ConstraintValueEdge1D(
-              (AbstractPatch1D)model.GetPatch(0), 0, 2, new NullFunctionRToR(), 0);
-            model.AddConstraint(cX1, cY1, cThetaZ1);
-            ////// displacement edges
-            //double du = 0.1;
-            //ConstraintValueEdge1D cY0 = new ConstraintValueEdge1D(
-            //    (PatchStructure1D)model.GetPatch(0), 1, 1, new ConstantFunctionRToR(1.0), du);
-            //ConstraintValueEdge2D cY1 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(1), 1, 1, new ConstantFunctionRToR(1.0), du);
-            //ConstraintValueEdge2D cY2 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(2), 1, 1, new ConstantFunctionRToR(1.0), du);
-            //ConstraintValueEdge2D cY3 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(3), 1, 1, new ConstantFunctionRToR(1.0), du);
-            //ConstraintValueEdge2D cX0 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(0), 1, 0, new ConstantFunctionRToR(1.0), 0);
-            //ConstraintValueEdge2D cX1 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(1), 1, 0, new ConstantFunctionRToR(1.0), 0);
-            //ConstraintValueEdge2D cX2 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(2), 1, 0, new ConstantFunctionRToR(1.0), 0);
-            //ConstraintValueEdge2D cX3 = new ConstraintValueEdge2D(
-            //    (PatchStructure2D)model.GetPatch(3), 1, 0, new ConstantFunctionRToR(1.0), 0);
-            //model.AddConstraint(cX5, cX6, cX7, cX8, cY5, cY6, cY7, cY8,
-            //    cY0, cY1, cY2, cY3, cX0, cX1, cX2, cX3);
-            //Stopwatch sw = new Stopwatch();
-            //sw.Start();
+            //ConstraintValueEdge1D cX1 = new ConstraintValueEdge1D(
+            //    (AbstractPatch1D)model.GetPatch(0), 0, 0, new NullFunctionRToR(), 0);
+            //ConstraintValueEdge1D cY1 = new ConstraintValueEdge1D(
+            //  (AbstractPatch1D)model.GetPatch(0), 0, 1, new NullFunctionRToR(), 0);
+            //ConstraintValueEdge1D cThetaZ1 = new ConstraintValueEdge1D(
+            //  (AbstractPatch1D)model.GetPatch(0), 0, 2, new NullFunctionRToR(), 0);
+            //model.AddConstraint(cX1, cY1, cThetaZ1);
+            model.AddConstraint(cY);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             model.IsSaveStepByStep = false;
             AbstractModel.IsParallelProcesing = false;
-
+            model.SetKinematicsFunction(new LinearFunctionRToR(0, 1, 0, 1), 0);
             model.InitializePatch();
             model.PreProcessing();
-            //model.Solve();
+            model.Solve();
             //model.PostProcessing();
 
             //sw.Stop();
