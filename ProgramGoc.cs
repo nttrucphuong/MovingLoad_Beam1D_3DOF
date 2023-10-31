@@ -14,6 +14,7 @@ using DEMSoft.Function;
 using System.Drawing.Printing;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
+using System.IO;
 
 namespace SampleTesting1
 {
@@ -27,7 +28,7 @@ namespace SampleTesting1
     //    {
     //        double r = 1;
     //        double a = 4;
-            
+
     //        ViewerForm viewer = new ViewerForm(true);
     //        List<NURBSSurface> listSurfaces = new List<NURBSSurface>();            // Upper part
 
@@ -209,3 +210,151 @@ namespace SampleTesting1
     //    }
     //}
 }
+
+
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using System.Windows.Forms;
+//using DEMSoft.Drawing;
+//using DEMSoft.NURBS;
+//using DEMSoft.Plot;
+//using DEMSoft.IGA;
+//using System.Drawing;
+//using DEMSoft.EngineeringData;
+//using DEMSoft.Common;
+//using DEMSoft.Function;
+//using System.Drawing.Printing;
+//using System.CodeDom.Compiler;
+//using System.Diagnostics;
+//using System.IO;
+
+//namespace SampleTesting1
+//{
+//    internal static class Program
+//    {
+//        /// <summary>
+//        /// The main entry point for the application.
+//        /// </summary>
+//        [STAThread]
+//        static void Main()
+//        {
+//            var targetDir = Path.Combine(@"F:\ppp\CTDT\Nam_tu\LVTN\github\MovingLoad\MovingLoad\bin\Debug\temp");
+//            if (Directory.Exists(targetDir))
+//            {
+//                Directory.Delete(targetDir, true);
+//            }
+//            double h = 3;
+//            double L = 12;
+//            double thickness = 1;
+//            NURBSSurface sur = GeometryCreator.CreateRectangleNURBSSurface(0, -h / 2, L, h / 2);
+//            NURBSSurface[] surfaces = (NURBSSurface[])sur.Split(0.3, 0);
+//            // Knot vector: patch 1: 0 -1, patch2: 0-1
+//            for (int i = 0; i < surfaces.Length; i++)
+//            {
+//                surfaces[i].SetDegreeOnAllDirections(3); //the same pRefinement for 2 directions
+//                surfaces[i].hRefinement(4, 0);
+//                if (i == 0)
+//                    surfaces[i].hRefinement(9, 1);
+//                else
+//                    surfaces[i].hRefinement(2, 1);
+
+//            }
+
+//            ViewerForm viewer = new ViewerForm();
+
+//            for (int i = 0; i < surfaces.Length; i++)
+//            {
+//                surfaces[i].Draw(viewer);
+//            }
+//            viewer.Run();
+
+//            //sur.isDrawOriginal = false;
+//            //sur.isColorfulFace = false;
+//            //sur.colorSurface = Color.Violet;
+//            //sur.colorCurve = Color.Blue;
+//            //sur.opacity = 0.3;
+
+//            //sur.pRefinement(3, 0);
+//            //sur.pRefinement(3, 1);
+//            //sur.InsertKnot(0.2, 1, 0);
+//            //sur.InsertKnot(0.2, 1, 1);
+//            //sur.InsertKnot(0.8, 1, 1);
+//            //sur.hRefinement(4, 0);
+//            //sur.hRefinement(2, 1);
+
+
+
+//            double E = 2e11;
+//            double nu = 0.3;
+//            Material mat1 = new Material("ex1");
+//            mat1.AddProperty(new IsotropicElasticity(
+//                PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E, nu));
+//            double E2 = 7e10;
+//            double nu2 = 0.27;
+//            Material mat2 = new Material("Al");
+//            mat2.AddProperty(new IsotropicElasticity(
+//                PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E2, nu2));
+
+//            ////Console.WriteLine(mat1.GetProperty(MaterialPropertyName.YoungModulus).GetValueProperty());
+//            ////Console.ReadKey();
+
+//            ModelStructureStatic model = new ModelStructureStatic(Dimension.Plane);
+//            model.StressState = Structure2DState.PlaneStress;
+//            model.AddPatch(surfaces[0]); //patch 0
+//            model.AddPatch(surfaces[1]); //patch 0
+//            model.SetAutomaticInterfaceAllPatch(false);
+//            model.AddMaterial(mat1);//mat 0
+//            model.AddMaterial(mat2);//mat 0
+//            model.AttachMaterialToPatch(0, 0); //index of patch
+//            model.AttachMaterialToPatch(1, 1); //index of patch
+//            ((PatchStructure2D)model.GetPatch(0)).Thickness = thickness;
+//            ((PatchStructure2D)model.GetPatch(1)).Thickness = thickness;
+
+//            //ControlPoint[] selCPS = ((AbstractPatch2D)(model).GetPatch(0)).SelectNearEndPatchControlPoints(2);
+//            ConstraintValueEdge2D cx = new ConstraintValueEdge2D(
+//                (AbstractPatch2D)model.GetPatch(0), 2, 0, new NullFunctionRToR(), 0);
+//            ConstraintValueEdge2D cy = new ConstraintValueEdge2D(
+//                (AbstractPatch2D)model.GetPatch(0), 2, 1, new NullFunctionRToR(), 0);
+//            model.AddConstraint(cx, cy);
+
+//            //NURBSCurve curve = (NURBSCurve)sur.GetCurve(3);
+
+//            double F = -100000;
+//            double f = F / h;
+//            model.InitializePatch();
+//            List<AbstractElement> selElem = ((AbstractPatch2D)model.GetPatch(1)).SelectEndPatchElement(3);
+//            for (int i = 0; i < selElem.Count; i++)
+//            {
+//                Face face = ((AbstractElement2D)selElem[i]).GetFace();
+//                Edge edge = face.GetEdge(3);
+//                PressureEdge press = new PressureEdge(
+//                    edge, true, new NullFunctionRToR(), new ConstantFunctionRToR(f));
+//                model.AddLoad(press);
+//            }
+//            model.AddComputeResult(Result.SIGMAXX, Result.SIGMAXY, Result.SIGMAYY, Result.EPSILONEQV);
+//            model.IsSaveStepByStep = false;
+//            model.PreProcessing();
+//            model.Solve();
+//            model.PostProcessing();
+
+//            model.Extrapolation(Result.SIGMAXX, Result.SIGMAXY, Result.SIGMAYY, Result.SIGMAEQV);
+//            viewer = new ViewerForm();
+//            model.DrawResult(Result.USUM, viewer, 5, true, 10000.0);
+//            viewer.Run();
+
+//            viewer = new ViewerForm();
+//            model.DrawResult(Result.SIGMAXX, viewer, 5, true, 10000.0);
+//            viewer.Run();
+
+//            viewer = new ViewerForm();
+//            model.DrawResult(Result.SIGMAXY, viewer, 5, true, 10000.0);
+//            viewer.Run();
+
+//            viewer = new ViewerForm();
+//            model.DrawResult(Result.SIGMAEQV, viewer, 5, true, 10000.0);
+//            viewer.Run();
+//        }
+//    }
+//}
