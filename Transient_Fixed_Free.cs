@@ -17,7 +17,7 @@
 
 //namespace SampleTesting
 //{
-//  internal static class Program
+//  internal static class Transient_Fixed_Free
 //  {
 //    /// <summary>
 //    /// The main entry point for the application.
@@ -49,7 +49,7 @@
 //      NURBSCurve curve = GeometryCreator.CreateStraightNURBSCurve(0, 0, 0, L, 0, 0);
 //      // danh sach cac Curve
 //      List<NURBSCurve> listCurve = new List<NURBSCurve>();
-//      curve.pRefinement(3);
+//      curve.pRefinement(2);
 //      curve.hRefinement(50); //inssert KVector - incerease p, min luoi
 
 //      //curve.colorKnot = Color.Red;
@@ -82,50 +82,34 @@
 //      model.SetWidthBeam(b, 0);
 
 //      ControlPoint[] selAllCPs = ((AbstractPatch1D)model.GetPatch(0)).SelectAllControlPoints(0);
-//      ControlPoint[] selCPStart = new ControlPoint[] { selAllCPs[0] };
-//      ControlPoint[] selCPEnd = new ControlPoint[] { selAllCPs[selAllCPs.Length - 1] };
+//      ControlPoint[] selCPStart = new ControlPoint[] { selAllCPs[0], selAllCPs[1] };
 
 //      ///1D-3Dof
 //      ConstraintValueArrayOfControlPoints cX0 = new ConstraintValueArrayOfControlPoints(selCPStart, 0, new NullFunctionRToR(), 0);
 //      ConstraintValueArrayOfControlPoints cY0 = new ConstraintValueArrayOfControlPoints(selCPStart, 1, new NullFunctionRToR(), 0);
-//      //ConstraintValueArrayOfControlPoints cThetaZ0 = new ConstraintValueArrayOfControlPoints(selCPStart, 2, new NullFunctionRToR(), 0);
-
-//      ConstraintValueArrayOfControlPoints cX1 = new ConstraintValueArrayOfControlPoints(selCPEnd, 0, new NullFunctionRToR(), 0);
-//      ConstraintValueArrayOfControlPoints cY1 = new ConstraintValueArrayOfControlPoints(selCPEnd, 1, new NullFunctionRToR(), 0);
-//      //ConstraintValueArrayOfControlPoints cThetaZ1 = new ConstraintValueArrayOfControlPoints(selCPEnd, 2, new NullFunctionRToR(), 0);
+//      ConstraintValueArrayOfControlPoints cThetaZ0 = new ConstraintValueArrayOfControlPoints(selCPStart, 2, new NullFunctionRToR(), 0);
 
 //      ////apply constraint
-//      model.AddConstraint(cX0, cY0/*, cThetaZ0*/);
-//      model.AddConstraint(cX1, cY1);
+//      model.AddConstraint(cX0, cY0/*cThetaZ0*/);
 //      ///
 
 //      AbstractModel.IsParallelProcesing = false;
 
 //      ///////Dynamic
-//      //FunctionRToR sinForce = new SinFunctionRToR(1, 500);
-//      //FunctionRToR concertrateForce = new ConstantFunctionRToR(10);
+//      FunctionRToR sinForce = new SinFunctionRToR(1, 500);
 //      FunctionRToR concertrateForce = new ConstantFunctionRToR(347000);
+//      ForceTime f = new ForceTime(curve.ControlPoints[curve.ControlPoints.Length - 1], sinForce, 0, -1, 0);
 
-//      //ForceTime f = new ForceTime(curve.ControlPoints[curve.ControlPoints.Length - 1], concertrateForce, 0, -1, 0);
-//      //ForceTime f = new ForceTime(curve.ControlPoints[curve.ControlPoints.Length - 1], sinForce, 0, 1, 0);
-//      //model.AddLoad(f);
+//      //ControlPoint cpLoad = selAllCPs[selAllCPs.Length - 1];
+//      //ForceTime force = new ForceTime(cpLoad, concertrateForce, 0, -1, 0);
+//      model.AddLoad(f);
 
-//      //double V0 = 0.5;
-//      double V0 = 13.6/*136.284*//*68.1419*//*13.6*/; //m/s
-//      double w1 = 25.70422813;
-//      double alpha = Math.PI / (w1 * L);
-//      double V0_ = V0*alpha; //V0
-//      FunctionRToR positionLoad = new LinearFunctionRToR(0, 1, 0, V0_);
-//      ForceMovingOnPatch fMoving = new ForceMovingOnPatch((AbstractPatch1D)model.GetPatch(0), positionLoad, concertrateForce, 0.0, -1.0, 0.0);
-//      model.AddLoad(fMoving);
+//      model.IsSaveStepByStep = true;
 
-//      //model.IsSaveStepByStep = true;
-
-//      double totalTime = 1 / V0_;//L / V0
 //      int numStep = 100;
 
-//      model.SetKinematicsFunction(new LinearFunctionRToR(0, 1, 0, 1), 0);//  new LinearFunctionRToR(0, 1, 0, 1)  new NullFunctionRToR()
-//      double[] deltaT = { totalTime / numStep };
+//      model.SetKinematicsFunction(new PolynomialFunctionRToR(0, 1, 0, -4 / (3 * h * h)), 0);
+//      double[] deltaT = { 0.001 };
 //      int[] numberOfSubStepLoad = { numStep };
 //      int[] numberOfStepSave = { numStep };
 //      model.SetTransientSolver(deltaT, numberOfSubStepLoad, numberOfStepSave);
@@ -137,18 +121,13 @@
 
 //      //RESULT
 //      List<double> arrayData = new List<double>();
+//      double[] xi = new double[numStep];
+//      double dxi = 1.0 / (numStep - 1);
 //      for (int i = 1; i <= numStep; i++)
 //      {
+//        xi[i - 1] = (i - 1) * dxi;
 //        model.ReadResultByLoadStep(i);
 //        arrayData.Add(model.GetPatch(0).GetApproximateAt(Result.UY, 0.5));
-//      }
-
-//      double[] xi = new double[arrayData.ToArray().Length];
-//      double dxi = 1.0 / (numStep - 1);
-
-//      for (int i = 0; i < xi.Length; i++)
-//      {
-//        xi[i] = i * dxi;
 //      }
 
 //      Plotter plotter = new Plotter();
@@ -156,15 +135,21 @@
 //      line.InputData(xi, arrayData.ToArray(), "IGA");
 //      line.SetColor(Color.Red);
 //      plotter.AddPlot(line);
-
-//      //PlotPoints points = new PlotPoints();
-//      //points.InputData(xi, subData, "exact");
-//      //points.SetColor(Color.Blue);
-//      //plotter.AddPlot(points);
 //      plotter.SetShowLegend(true);
 //      plotter.Plot();
 //    }
+//    private static double[,] ExactSolution(double F, double L, double h, double b, double E, int num)
+//    {
+//      double I = b * Math.Pow(h, 3) / 12.0;
+//      double dx = L / (num - 1);
+//      double[,] results = new double[num, 3];
+//      for (int i = 0; i < num; i++)
+//      {
+//        results[i, 0] = i * dx;
+//        double x = L - results[i, 0];
+//        results[i, 1] = F / (6.0 * E * I) * (x * x * x - 3 * L * L * x + 2 * L * L * L);
+//      }
+//      return results;
+//    }
 //  }
 //}
-
-
