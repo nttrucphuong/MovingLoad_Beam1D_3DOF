@@ -365,6 +365,7 @@
 //      double rho = 114000; //kg/m^3
 //      double I = b * Math.Pow(h, 3) / 12.0;
 //      double area = b * h;
+//      double nuy = 0;
 
 //      //double L = 1; //m
 //      //double h = 0.01;//4.1602;
@@ -378,8 +379,8 @@
 //      NURBSCurve curve = GeometryCreator.CreateStraightNURBSCurve(0, 0, 0, L, 0, 0);
 //      // danh sach cac Curve
 //      List<NURBSCurve> listCurve = new List<NURBSCurve>();
-//      curve.pRefinement(3);
-//      curve.hRefinement(50); //inssert KVector - incerease p, min luoi
+//      curve.pRefinement(5);
+//      curve.hRefinement(500); //inssert KVector - incerease p, min luoi
 
 //      //curve.colorKnot = Color.Red;
 //      //curve.colorCurve = Color.Blue;
@@ -396,7 +397,7 @@
 
 //      Material steel = new Material("steel");
 //      steel.AddProperty(new IsotropicElasticity(
-//          PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E, 0.2));
+//          PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E, nuy));
 //      steel.AddProperty(new Density(rho));
 //      steel.TypeMaterialStructure = TypeMaterialStructure.Elasticity;
 //      //static
@@ -435,7 +436,7 @@
 //      AbstractModel.IsParallelProcesing = false;
 //      //model.SetKinematicsFunction(new LinearFunctionRToR(0, 1, 0, 1), 0);
 //      model.SetKinematicsFunction(new PolynomialFunctionRToR(0, 1, 0, -4 / (3 * h * h)), 0);
-//      int numMode = 5;
+//      int numMode = 10;
 //      model.SetNumberOfMode(numMode);
 
 //      model.InitializePatch();
