@@ -31,7 +31,7 @@
 //      double elem = 1;
 //      for (int i = 0; i < numElem; i++)
 //      {
-//        elem = Math.Pow(2, i+1);
+//        elem = Math.Pow(2, i + 1);
 //        numElems[i] = (int)elem;
 //      }
 //      int[,] arrDof = new int[pp.Length, numElems.Length];
@@ -45,8 +45,8 @@
 //          double val = Calculate(pp[i], numElems[j], out int dof, out double Cdis, out double Edis);
 //          arrDof[i, j] = dof;
 //          arrError[i, j] = val;
-//          Cdisplacemts[i, j] = Math.Round(Cdis,5);
-//          Edisplacemts = Math.Round(Edis,5);
+//          Cdisplacemts[i, j] = Math.Round(Cdis, 6);
+//          Edisplacemts = Math.Round(Edis, 6);
 //        }
 //      }
 
@@ -71,6 +71,7 @@
 //      //double b = 0.5; //m
 //      //double E = 2.976E+14; //Pa
 //      //double rho = 114000; //kg/m^3
+//      //double nuy = 0.2;
 //      //double I = b * Math.Pow(h, 3) / 12.0;
 //      //double area = b * h;
 //      ////ViewerForm viewer = new ViewerForm(true);
@@ -78,7 +79,7 @@
 //      //// danh sach cac Curve
 //      //List<NURBSCurve> listCurve = new List<NURBSCurve>();
 //      //curve.pRefinement(1);
-//      //curve.hRefinement(1); //inssert KVector - incerease p, min luoi
+//      //curve.hRefinement(7); //inssert KVector - incerease p, min luoi
 
 //      /////DRAW GEOMETRIES
 //      /////
@@ -218,6 +219,7 @@
 //      double b = 0.5; //m
 //      double E = 2.976E+14; //Pa
 //      double rho = 114000; //kg/m^3
+//      double nuy = 0.2;
 //      double I = b * Math.Pow(h, 3) / 12.0;
 //      double area = b * h;
 //      //ViewerForm viewer = new ViewerForm(true);
@@ -244,7 +246,7 @@
 
 //      Material steel = new Material("steel");
 //      steel.AddProperty(new IsotropicElasticity(
-//          PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E, 0.2));
+//          PairOfIsotropicElasticity.YoungModulusAndPoissonRatio, E, nuy));
 //      steel.AddProperty(new Density(rho));
 //      steel.TypeMaterialStructure = TypeMaterialStructure.Elasticity;
 //      //static
@@ -303,7 +305,8 @@
 //      double[] subData = new double[results.GetLength(0)];
 //      double[] xi = new double[subData.Length];
 //      double dxi = 1.0 / (numPoint - 1);
-//      double sum = 0;
+//      double sum = 0.0;
+//      double sumExact = 0.0;
 //      double PointLoadDis = model.GetPatch(0).GetApproximateAt(Result.UY, posLoad);
 //      for (int i = 0; i < xi.Length; i++)
 //      {
@@ -311,11 +314,12 @@
 //        arrayData[i] = model.GetPatch(0).GetApproximateAt(Result.UY, xi[i]);
 //        subData[i] = results[i, 1];
 //        if (arrayData[i] != 0)
-//          sum += Math.Pow((subData[i] - arrayData[i])/subData[i], 2);
+//          sum += Math.Pow((subData[i] - arrayData[i]), 2); //sum((u-ui)^2)
+//          sumExact += Math.Pow((subData[i]), 2); //sum(ui^2)
 //      }
 //      Cdisplacement = model.GetPatch(0).GetApproximateAt(Result.UY, posLoad);
-//      exactDisplacement= subData[xi.Length-1];
-//      return sum = Math.Sqrt(1.0 / numPoint * sum);
+//      exactDisplacement = subData[xi.Length - 1];
+//      return 1.0 / numPoint *Math.Sqrt(sum)/Math.Sqrt(sumExact);
 
 //    }
 //    private static double[,] ExactSolution(double F, double L, double h, double b, double E, double positionLoad, int num)
